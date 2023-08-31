@@ -35,7 +35,7 @@ def convertDate(r):
 		#st.write(f"request id:{row['id']} date is{row['request_date']}:")
 
 def initLayout():
-    st.write("hello world")
+    st.write("Welcome 👋")
 
 
 def startApp():
