@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from supabase import create_client, Client
 from datetime import datetime, date
+import re
 
 
 st.set_page_config(page_title="Vendor Clearance Checker", page_icon="🌍")
@@ -34,7 +35,7 @@ def searchPersonnelByEmail():
     addressToSearch = st.session_state['addressToSearch']
 
     st.title("Vendor Personnel")
-    if addressToSearch != "":
+    if inputValidationText(addressToSearch):
         rows = supabase.table(st.secrets['vendor_pers_tbl']).select("*", count='exact').ilike("company_email","%"+addressToSearch+"%").execute()
         st.success(str(rows.count) + " records retrieved", icon="✅")
         for row in rows.data:
@@ -58,7 +59,7 @@ def searchPersonnelByName():
     nameToSearch = st.session_state['nameToSearch']
 
     st.title("Vendor Personnel")
-    if nameToSearch != "":
+    if inputValidationText(nameToSearch):
         rows = supabase.table(st.secrets['vendor_pers_tbl']).select("*", count='exact').ilike("name","%"+nameToSearch+"%").execute()
         st.success(str(rows.count) + " records retrieved", icon="✅")
         for row in rows.data:
@@ -77,6 +78,20 @@ def searchPersonnelByName():
     else:
         st.success("0 records retrieved", icon="✅")
 
+
+def inputValidationText(txtToCheck):
+    if txtToCheck is None:
+        return False
+
+    if len(txtToCheck) <= 3:
+        return False
+
+    regex = re.compile('[_!#$%^&*()<>?/\|}{~:]') #check for any characters within the [ ]
+
+    if regex.search(txtToCheck) == None:
+        return True
+    
+    return False
 
 def searchForTechpass(compEmail):
     supabase= initDb()
