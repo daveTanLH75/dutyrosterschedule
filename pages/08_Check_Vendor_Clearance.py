@@ -46,7 +46,7 @@ def searchPersonnelByEmail():
                 st.write(row['name']+ " is cleared and working onshore")
 
             if techPassId is not None:
-                st.write("TechPass Id is "+techPassId)
+                st.write("TechPass Id is *************")
             else:
                 st.write("Techpass Id has not been applied yet")
 
@@ -70,7 +70,7 @@ def searchPersonnelByName():
                 st.write(row['name']+ " is cleared and working onshore")
 
             if techPassId is not None:
-                st.write("TechPass Id is "+techPassId)
+                st.write("TechPass Id is *************")
             else:
                 st.write("Techpass Id has not been applied yet")
             
