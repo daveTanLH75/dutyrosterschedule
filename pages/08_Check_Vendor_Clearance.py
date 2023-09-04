@@ -41,7 +41,7 @@ def searchPersonnelByEmail():
         for row in rows.data:
             id = row['id']
             techPassId = searchForTechpass(row['company_email'])
-            st.write(row)
+            #st.write(row)
             if checkPersonnelClearance(row['name'], row['ipa_date'], row['security_clear_date'],row['onshore_offshore'],row['roll_off_date']):
                 st.write(row['name']+ " is cleared and working onshore")
 
@@ -65,7 +65,7 @@ def searchPersonnelByName():
         for row in rows.data:
             id = row['id']
             techPassId = searchForTechpass(row['company_email'])
-            st.write(row)
+            #st.write(row)
             if checkPersonnelClearance(row['name'], row['ipa_date'], row['security_clear_date'],row['onshore_offshore'],row['roll_off_date']):
                 st.write(row['name']+ " is cleared and working onshore")
 
