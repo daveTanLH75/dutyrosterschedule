@@ -143,9 +143,9 @@ def checkPersonnelClearance(name,ipa_date, clearance_date, onshore_offshore, rol
 
 
 st.sidebar.header("Check Vendor Clearance")
-st.sidebar.text_input("Enter personnel name: ",key="nameToSearch")
+st.sidebar.text_input("Enter personnel name: ",key="nameToSearch", on_change=searchPersonnelByName)
 st.sidebar.button("Search by Name", on_click=searchPersonnelByName)
 
-st.sidebar.text_input("Enter email address: ",key="addressToSearch")
+st.sidebar.text_input("Enter email address: ",key="addressToSearch", on_change=searchPersonnelByEmail)
 st.sidebar.button("Search by email", on_click=searchPersonnelByEmail)
 
