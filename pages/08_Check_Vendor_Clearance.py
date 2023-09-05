@@ -36,7 +36,7 @@ def searchPersonnelByEmail():
 
     st.title("Vendor Personnel")
     if inputValidationText(addressToSearch):
-        rows = supabase.table(st.secrets['vendor_pers_tbl']).select("*", count='exact').ilike("company_email","%"+addressToSearch+"%").execute()
+        rows = supabase.table(st.secrets['vendor_pers_tbl']).select("*", count='exact').ilike("company_email","%"+addressToSearch.strip()+"%").execute()
         st.success(str(rows.count) + " records retrieved", icon="✅")
         for row in rows.data:
             id = row['id']
@@ -60,7 +60,7 @@ def searchPersonnelByName():
 
     st.title("Vendor Personnel")
     if inputValidationText(nameToSearch):
-        rows = supabase.table(st.secrets['vendor_pers_tbl']).select("*", count='exact').ilike("name","%"+nameToSearch+"%").execute()
+        rows = supabase.table(st.secrets['vendor_pers_tbl']).select("*", count='exact').ilike("name","%"+nameToSearch.strip()+"%").execute()
         st.success(str(rows.count) + " records retrieved", icon="✅")
         for row in rows.data:
             id = row['id']
