@@ -120,7 +120,7 @@ def initLayout():
     approved_sensitive_fields=[]
     queries = []
     FILE_TYPES = ["json","sql"]
-    uploaded_files = st.file_uploader("Choose multiple files for scanning (by default it checks for nric, email and home addresses)", type=FILE_TYPES,accept_multiple_files=True)
+    uploaded_files = st.file_uploader("Choose 2 json files approved_sensitive_fields.json and sensitive_fields.json. Then choose the rest of the sql files you need to scan", type=FILE_TYPES,accept_multiple_files=True)
     for uploaded_file in uploaded_files:
        if uploaded_file.name == 'sensitive_fields.json' :
         sensitive_fields = load_sensitive_data_config(uploaded_file)
