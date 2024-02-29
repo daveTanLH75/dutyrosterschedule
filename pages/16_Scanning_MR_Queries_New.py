@@ -150,8 +150,7 @@ def initLayout():
         #st.write(sensitive_fields)
         #st.write(sql_files)
 	
-def main():
-		initLayout()
+
+
+initLayout()
 		
-if __name__ == "__main__":
-	main()
