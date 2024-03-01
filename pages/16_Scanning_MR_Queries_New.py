@@ -90,15 +90,6 @@ def validate_queries_in_folder(sensitive_fields, approved_sensitive_fields, quer
 def is_sensitive_query(query, sensitive_fields, approved_sensitive_fields):
     normalized_query = query.lower()
 
-    # Check if any sensitive field is referenced in the query
-    for field in sensitive_fields:
-        if field in normalized_query:
-            # Check if it's an approved sensitive field
-            if field in approved_sensitive_fields:
-                return "APPROVED_SENSITIVE_FIELD_FOUND"
-            else:
-                return "SENSITIVE_FIELD_FOUND"
-
     # Check if the query contains "SELECT *"
     if "select *" in normalized_query:
         return "SELECT_ALL_FIELDS_FOUND"
@@ -111,6 +102,15 @@ def is_sensitive_query(query, sensitive_fields, approved_sensitive_fields):
     if not normalized_query.startswith("select "):
         return "NOT_ALLOWED_STATEMENT"
 
+    # Check if any sensitive field is referenced in the query
+    for field in sensitive_fields:
+        if field in normalized_query:
+            # Check if it's an approved sensitive field
+            if field in approved_sensitive_fields:
+                return "APPROVED_SENSITIVE_FIELD_FOUND"
+            else:
+                return "SENSITIVE_FIELD_FOUND"
+
     # If none of the above conditions are met, the query is safe
     return "SAFE_QUERY"
 
@@ -120,7 +120,7 @@ def initLayout():
     approved_sensitive_fields=[]
     queries = []
     FILE_TYPES = ["json","sql"]
-    uploaded_files = st.file_uploader("Choose 2 json files approved_sensitive_fields.json and sensitive_fields.json. Then choose the rest of the sql files you need to scan", type=FILE_TYPES,accept_multiple_files=True)
+    uploaded_files = st.file_uploader("Choose multiple files for scanning (by default it checks for nric, email and home addresses)", type=FILE_TYPES,accept_multiple_files=True)
     for uploaded_file in uploaded_files:
        if uploaded_file.name == 'sensitive_fields.json' :
         sensitive_fields = load_sensitive_data_config(uploaded_file)
@@ -151,6 +151,7 @@ def initLayout():
         #st.write(sql_files)
 	
 
-
 initLayout()
 		
+
+
