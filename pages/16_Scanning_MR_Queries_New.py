@@ -3,6 +3,10 @@ import re
 import json
 import os
 import pathlib
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+import io
 
 st.set_page_config(
     page_title="Scanning MR",
@@ -47,6 +51,7 @@ def validate_queries_in_folder(sensitive_fields, approved_sensitive_fields, quer
     for query in queries:
         #st.write(query)
         qur = query[0]
+        qur = qur.strip()
         qur_fileName = query[1]
        # st.write(qur)
        # st.write(qur_fileName)
@@ -56,39 +61,158 @@ def validate_queries_in_folder(sensitive_fields, approved_sensitive_fields, quer
 
     approved_sensitive_queries, unsafe_queries, safe_queries, not_allowed_queries = categorize_queries(query_results)
 
+    # Create a new document
+    doc = Document()
+
+    # Add a title
+    title = doc.add_heading('MR Scripts Scanning Report', level=1)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    # Add a table
+    doc.add_heading('Queries with Approved Sensitive Fields', level=2)
+    tbl_row = len(approved_sensitive_queries) + 1
+    table = doc.add_table(rows=tbl_row, cols=3)
+    table.style = 'Table Grid'
+    table.autofit = False
+    table.allow_autofit = False
+    for row in table.rows:
+        for cell in row.cells:
+            cell.width = Pt(100)
+    table.cell(0, 0).text = 'Filename'
+    table.cell(0, 1).text = 'Query Result'
+    table.cell(0, 2).text = 'Query'
+    for i, data in enumerate(approved_sensitive_queries, start=1):
+        table.cell(i, 0).text = data[0]
+        table.cell(i, 1).text = data[1]
+        display_txt = data[2][0]
+        table.cell(i, 2).text = display_txt
+    
+
+    doc.add_heading('Unsafe Queries', level=2)
+    tbl_row = len(unsafe_queries) + 1
+    table = doc.add_table(rows=tbl_row, cols=3)
+    table.style = 'Table Grid'
+    table.autofit = False
+    table.allow_autofit = False
+    for row in table.rows:
+        for cell in row.cells:
+            cell.width = Pt(100)
+    table.cell(0, 0).text = 'Filename'
+    table.cell(0, 1).text = 'Query Result'
+    table.cell(0, 2).text = 'Query'
+    for i, data in enumerate(unsafe_queries, start=1):
+        table.cell(i, 0).text = data[0]
+        table.cell(i, 1).text = data[1]
+        display_txt = data[2][0]
+        table.cell(i, 2).text = display_txt
+
+    doc.add_heading('Safe Queries', level=2)
+    tbl_row = len(safe_queries) + 1
+    table = doc.add_table(rows=tbl_row, cols=3)
+    table.style = 'Table Grid'
+    table.autofit = False
+    table.allow_autofit = False
+    for row in table.rows:
+        for cell in row.cells:
+            cell.width = Pt(100)
+    table.cell(0, 0).text = 'Filename'
+    table.cell(0, 1).text = 'Query Result'
+    table.cell(0, 2).text = 'Query'
+    for i, data in enumerate(safe_queries, start=1):
+        table.cell(i, 0).text = data[0]
+        table.cell(i, 1).text = data[1]
+        display_txt = data[2][0]
+        table.cell(i, 2).text = display_txt
+
+    doc.add_heading('Not Allowed SQL Statements', level=2)
+    tbl_row = len(not_allowed_queries) + 1
+    table = doc.add_table(rows=tbl_row, cols=3)
+    table.style = 'Table Grid'
+    table.autofit = False
+    table.allow_autofit = False
+    for row in table.rows:
+        for cell in row.cells:
+            cell.width = Pt(100)
+    table.cell(0, 0).text = 'Filename'
+    table.cell(0, 1).text = 'Query Result'
+    table.cell(0, 2).text = 'Query'
+    for i, data in enumerate(not_allowed_queries, start=1):
+        table.cell(i, 0).text = data[0]
+        table.cell(i, 1).text = data[1]
+        display_txt = data[2][0]
+        table.cell(i, 2).text = display_txt
+
+    doc.add_heading('Listing of All Queries', level=2)
+    tbl_row = len(query_results) + 1
+    table = doc.add_table(rows=tbl_row, cols=3)
+    table.style = 'Table Grid'
+    table.autofit = False
+    table.allow_autofit = False
+    for row in table.rows:
+        for cell in row.cells:
+            cell.width = Pt(100)
+    table.cell(0, 0).text = 'Filename'
+    table.cell(0, 1).text = 'Query Result'
+    table.cell(0, 2).text = 'Query'
+    for i, data in enumerate(query_results, start=1):
+        table.cell(i, 0).text = data[0]
+        table.cell(i, 1).text = data[1]
+        display_txt = data[2][0]
+        table.cell(i, 2).text = display_txt
+
+    doc.save('MR_Scripts_Scan_report.docx')
+
+    bio = io.BytesIO()
+
+    doc.save(bio)
+    if doc:
+        st.download_button(
+            label="Click here to download MR Scanning Report",
+            data=bio.getvalue(),
+            file_name="MR_Scripts_Scan_report.docx",
+            mime="docx"
+            )
+
     # Display queries with approved sensitive fields
-    st.text("Queries with Approved Sensitive Fields:")
-    st.text(f"{'Filename':<30} {'Query Result':<30} {'Query'}")
+    st.text("Output for troubleshoot")
+    st.text("\nQueries with Approved Sensitive Fields:")
+    st.text(f"{'Filename':<20} {'Query Result':<30} {'Query'}")
     for filename, query_result, query in approved_sensitive_queries:
-        st.text(f"{filename:<30} {query_result:<30} {query}")
+        display_txt = query[0]
+        st.text(f"{filename:<20} {query_result:<30} {display_txt}")
 
     # Display unsafe queries
     st.text("\nUnsafe Queries:")
-    st.text(f"{'Filename':<30} {'Query Result':<30} {'Query'}")
+    st.text(f"{'Filename':<20} {'Query Result':<30} {'Query'}")
     for filename, query_result, query in unsafe_queries:
-        st.text(f"{filename:<30} {query_result:<30} {query}")
+        display_txt = query[0]
+        st.text(f"{filename:<20} {query_result:<30} {display_txt}")
 
     # Display safe queries
     st.text("\nSafe Queries:")
-    st.text(f"{'Filename':<30} {'Query Result':<30} {'Query'}")
+    st.text(f"{'Filename':<20} {'Query Result':<30} {'Query'}")
     for filename, query_result, query in safe_queries:
-        st.text(f"{filename:<30} {query_result:<30} {query}")
+        display_txt = query[0]
+        st.text(f"{filename:<20} {query_result:<30} {display_txt}")
 
     # Display not allowed queries
     st.text("\nNot Allowed SQL Statements:")
-    st.text(f"{'Filename':<30} {'Query Result':<30} {'Query'}")
+    st.text(f"{'Filename':<20} {'Query Result':<30} {'Query'}")
     for filename, query_result, query in not_allowed_queries:
-        st.text(f"{filename:<30} {query_result:<30} {query}")
+        display_txt = query[0]
+        st.text(f"{filename:<20} {query_result:<30} {display_txt}")
 
     # Display a listing of all queries
     st.text("\nListing of All Queries:")
-    st.text(f"{'Filename':<30} {'Query Result':<30} {'Query'}")
+    st.text(f"{'Filename':<20} {'Query Result':<30} {'Query'}")
     for filename, query_result, query in query_results:
-        st.text(f"{filename:<30} {query_result:<30} {query}")
+        display_txt = query[0]
+        st.text(f"{filename:<20} {query_result:<30} {display_txt}")
     
 
 def is_sensitive_query(query, sensitive_fields, approved_sensitive_fields):
     normalized_query = query.lower()
+    normalized_query = normalized_query.strip()
 
     # Check if the query contains "SELECT *"
     if "select *" in normalized_query:
@@ -135,7 +259,12 @@ def initLayout():
                #st.text(str_sql_str_str)
                queries.append((str_sql_str_str,uploaded_file.name))
 
-           
+
+    if len(sensitive_fields) == 0:
+        sensitive_fields = st.secrets["sensitive_fields"]
+
+    if len(approved_sensitive_fields) == 0:
+        approved_sensitive_fields = st.secrets["approved_sensitive_fields"]
 	
     if len(sensitive_fields) > 0 and len(approved_sensitive_fields) > 0 and len(queries) > 0 :
         st.text("Approved Sensitive Fields:")
