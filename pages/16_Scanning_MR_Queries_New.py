@@ -421,10 +421,10 @@ def startScanning():
     st.text("End of Scanning, "+ str(errorFound)+ " Errors found")
 
 def initLayout2():
-    st.header("SQL Queries to Scan")
-    st.text_area("Input SQL queries to scan",key="sqlQueryScan", height=500)
-    st.header("Approved Fields")
-    st.text_area("Input approved database fields to scan",key="approvedFieldScan", height=500)
+    st.header("SQL Queries to Scan in SQL File")
+    st.text_area("Input SQL queries to scan (ie MOESYSPQ-xxxxx.sql)",key="sqlQueryScan", height=500)
+    st.header("Approved Fields in Log files")
+    st.text_area("Input approved database fields (ie Log file)",key="approvedFieldScan", height=500)
     st.button("Start Scanning", on_click=startScanning, type= "primary")
 
 
