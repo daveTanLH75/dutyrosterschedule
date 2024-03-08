@@ -278,9 +278,154 @@ def initLayout():
         #st.text("Sensitive Fields:")
         #st.write(sensitive_fields)
         #st.write(sql_files)
-	
 
-initLayout()
-		
+def validateInput():
+    sqlstr = st.session_state['sqlQueryScan']
+    if sqlstr == "" or sqlstr == None:
+        st.error ("No sql queries input",icon="🚨")
+        return False
+    
+    approvedfields = st.session_state['approvedFieldScan']
+    if approvedfields == "" or approvedfields == None:
+        st.error("No approved fields input",icon="🚨")
+        return False
 
 
+def startScanning():
+    if validateInput() == False :
+        return
+    mrjira_name = ""
+
+    sqlstr = st.session_state['sqlQueryScan']
+    approvedfields = st.session_state['approvedFieldScan']
+    sqlstrs = sqlstr.split(";")
+    appFieldsList = approvedfields.split("\n")
+
+    #st.write(sqlstrs)
+    count = 0 # used for first level filtering for jira name and sets of tbl names and queries
+    sqlqueries = [] # used to store all the queries, in relation to the table names stored in sqltblNames[]
+    sqltblNames = [] # used to store all table names in relation to the queries stored in sqlqueries
+    approvedTblNames = [] #used to store all the approved tbl names in relation to the approved fields stored in approvedfieldstrs
+    approvedFieldStrs = [] #used to store all the approved fields in relation to approvedtblnames
+
+    tblName = ""
+    queryStr = ""
+    cnt = 0 # second level filtering for table and queries
+    for substr in sqlstrs:
+        substrwords = substr.rstrip().split("\n")
+        if len(substrwords) == 0:
+            count += 1
+            continue
+
+        for substr2 in substrwords:
+            #st.text(substr2.rstrip())
+            substr2 = substr2.rstrip()
+            if substr2 == "":
+                continue
+
+            if "MOESYSPQ" in substr2: #parse jira name
+                mrjira_name = substr2
+                st.text("Start Scanning MR: "+ mrjira_name)
+                continue
+
+            if "qecho" in substr2: # parse tbl Name
+                tblStrlst = substr2.split()
+                if len(tblStrlst) == 2:
+                    tblName = tblStrlst[1].strip()
+                    sqltblNames.append(tblName)
+            else:
+                if queryStr == "":
+                    queryStr = substr2
+                else:
+                    queryStr = queryStr + substr2
+        
+        if queryStr != "":
+            #sqlqueries.append(queryStr)
+            queryFields = queryStr.split("from")
+            newQStr = ""
+            if len(queryFields) == 2:
+                actualFields = queryFields[0].split(",")
+                for f in actualFields:
+                    if "select" in f:
+                        firstS = f.split()
+                        newQStr += firstS[1]
+                    else:
+                        newQStr += " | "+f 
+                    
+                sqlqueries.append(newQStr)
+
+            queryStr = ""
+
+        count += 1
+
+    for appfield in appFieldsList:
+        
+        if "row" in appfield:
+            continue
+        
+        if "+" in appfield:
+            continue
+        
+        if "|" in appfield: #these are fields string
+            approvedFieldStrs.append(appfield)
+            continue
+
+        if appfield.rstrip() != "":
+            approvedTblNames.append(appfield)
+
+
+    if len(sqltblNames) != len(sqlqueries):
+        st.text("There are "+ str(len(sqltblNames))+ " tables and " + str(len(sqlqueries))+ " queries")
+        st.error("THere are mismatched tables and queries in SQL text scan",icon="🚨")
+        return
+    
+    if len(approvedTblNames) != len(approvedFieldStrs) :
+        st.text("There are "+ str(len(approvedTblNames))+ " approved tables and " + str(len(approvedFieldStrs))+ " fields")
+        st.error("There are mismatched approved tables and fields in approved fields input", icon="🚨")
+        return
+
+    if len(sqltblNames) != len(approvedTblNames):
+        st.text("There are "+ str(len(sqltblNames))+ " tables and " + str(len(approvedTblNames))+ " approved tables")
+        st.error("There are mismatched tables and approved tables",icon="🚨")
+        return
+    
+    if len(sqlqueries) != len(approvedFieldStrs):
+        st.text("There are "+ str(len(sqlqueries))+ " queries and " + str(len(approvedFieldStrs))+ " approved fields")
+        st.error("There are mismatched sql queries and approved fields",icon="🚨")
+        return
+
+    #start matching
+    errorFound = 0
+    count = 0
+    for actTblName in sqltblNames:
+        for appTblName in approvedTblNames:
+            if actTblName.strip() == appTblName.strip():
+                break
+        sqlq = sqlqueries[count]
+        sqlqLst = sqlq.split("|")
+
+        appFStr = approvedFieldStrs[count]
+        appFStrLst = appFStr.split("|")
+
+        for qstr in sqlqLst:
+            found = False
+            for aFStr in appFStrLst:
+                if qstr.strip() == aFStr.strip():
+                    found = True
+                    break
+            if found == False:
+                st.error("Table Name: "+actTblName+" Field: "+ qstr+" is not matched, Pls check", icon="🚨")
+                errorFound += 1
+        count += 1
+    
+    st.text("End of Scanning, "+ str(errorFound)+ " Errors found")
+
+def initLayout2():
+    st.header("SQL Queries to Scan")
+    st.text_area("Input SQL queries to scan",key="sqlQueryScan", height=500)
+    st.header("Approved Fields")
+    st.text_area("Input approved database fields to scan",key="approvedFieldScan", height=500)
+    st.button("Start Scanning", on_click=startScanning, type= "primary")
+
+
+initLayout2()
