@@ -300,6 +300,7 @@ def startScanning():
     approvedfields = st.session_state['approvedFieldScan']
     sqlstrs = sqlstr.split(";")
     appFieldsList = approvedfields.split("\n")
+    sensitive_fields = st.secrets["sensitive_fields"]
 
     #st.write(sqlstrs)
     count = 0 # used for first level filtering for jira name and sets of tbl names and queries
@@ -320,6 +321,7 @@ def startScanning():
         for substr2 in substrwords:
             #st.text(substr2.rstrip())
             substr2 = substr2.rstrip()
+            #st.text(substr2)
             if substr2 == "":
                 continue
 
@@ -338,17 +340,26 @@ def startScanning():
                     queryStr = substr2
                 else:
                     queryStr = queryStr + substr2
+                    #st.text(queryStr)
         
         if queryStr != "":
-            #sqlqueries.append(queryStr)
-            queryFields = queryStr.split("from")
+            queryStr = queryStr.lower()
+            st.text(queryStr)
+            queryFields = queryStr.split("from", 1)
             newQStr = ""
             if len(queryFields) == 2:
                 actualFields = queryFields[0].split(",")
                 for f in actualFields:
+                    f = f.lower()
+                    st.text(f)
                     if "select" in f:
                         firstS = f.split()
-                        newQStr += firstS[1]
+                        if len(firstS) >= 2:
+                            newQStr = firstS[1]
+                        else:
+                            st.text(firstS[0])
+                            strr = firstS[0]
+                            newQStr = strr.replace("select","")
                     else:
                         newQStr += " | "+f 
                     
@@ -376,7 +387,7 @@ def startScanning():
 
     if len(sqltblNames) != len(sqlqueries):
         st.text("There are "+ str(len(sqltblNames))+ " tables and " + str(len(sqlqueries))+ " queries")
-        st.error("THere are mismatched tables and queries in SQL text scan",icon="🚨")
+        st.error("There are mismatched tables and queries in SQL text scan",icon="🚨")
         return
     
     if len(approvedTblNames) != len(approvedFieldStrs) :
@@ -412,20 +423,31 @@ def startScanning():
             for aFStr in appFStrLst:
                 if qstr.strip() == aFStr.strip():
                     found = True
+                    if qstr.strip() != "" and qstr.strip() in sensitive_fields:
+                        st.warning("Table: "+ actTblName+ " Field :"+aFStr+" is :red[sensitive]", icon="⚠️")
                     break
             if found == False:
-                st.error("Table Name: "+actTblName+" Field: "+ qstr+" is not matched, Pls check", icon="🚨")
-                errorFound += 1
+                st.text(qstr)
+                if qstr.strip() != "" and qstr.strip() in sensitive_fields:
+                    st.error("Table Name: "+actTblName+" Field: "+ qstr+" is not matched, :red[This field is sensitve also], Pls check", icon="🚨")
+                    errorFound += 1
+                elif qstr.strip() != "":
+                    st.error("Table Name: "+actTblName+" Field: "+qstr+" is not matched, Pls check", icon="🚨")
+                    errorFound += 1
+                
         count += 1
     
     st.text("End of Scanning, "+ str(errorFound)+ " Errors found")
 
 def initLayout2():
-    st.header("SQL Queries to Scan in SQL File")
-    st.text_area("Input SQL queries to scan (ie MOESYSPQ-xxxxx.sql)",key="sqlQueryScan", height=500)
-    st.header("Approved Fields in Log files")
-    st.text_area("Input approved database fields (ie Log file)",key="approvedFieldScan", height=500)
+    st.header("SQL Queries to Scan")
+    st.text_area("Input SQL queries to scan",key="sqlQueryScan", height=500)
+    st.header("Approved Fields")
+    st.text_area("Input approved database fields to scan",key="approvedFieldScan", height=500)
     st.button("Start Scanning", on_click=startScanning, type= "primary")
 
 
 initLayout2()
+		
+
+
