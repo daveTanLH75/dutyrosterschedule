@@ -7,6 +7,8 @@ from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
+from sqlglot import parse_one, exp
+
 
 st.set_page_config(
     page_title="Scanning MR",
@@ -302,6 +304,12 @@ def startScanning():
     appFieldsList = approvedfields.split("\n")
     sensitive_fields = st.secrets["sensitive_fields"]
 
+    #for column in parse_one(sqlstr).find_all(exp.Column):
+    #    st.text(f"Column =>  {column.name}")
+
+    #for table in parse_one(sqlstr).find_all(exp.Table):
+    #    st.text(f"Table =>  {table.name} | DB=> {table.db}" )
+
     #st.write(sqlstrs)
     count = 0 # used for first level filtering for jira name and sets of tbl names and queries
     sqlqueries = [] # used to store all the queries, in relation to the table names stored in sqltblNames[]
@@ -339,35 +347,23 @@ def startScanning():
                 if queryStr == "":
                     queryStr = substr2
                 else:
-                    queryStr = queryStr + substr2
+                    queryStr = queryStr +" "+ substr2
                     #st.text(queryStr)
         
-        if queryStr != "":
-            queryStr = queryStr.lower()
-            st.text(queryStr)
-            queryFields = queryStr.split("from", 1)
-            newQStr = ""
-            if len(queryFields) == 2:
-                actualFields = queryFields[0].split(",")
-                for f in actualFields:
-                    f = f.lower()
-                    st.text(f)
-                    if "select" in f:
-                        firstS = f.split()
-                        if len(firstS) >= 2:
-                            newQStr = firstS[1]
-                        else:
-                            st.text(firstS[0])
-                            strr = firstS[0]
-                            newQStr = strr.replace("select","")
-                    else:
-                        newQStr += " | "+f 
-                    
-                sqlqueries.append(newQStr)
+        st.text(queryStr)
 
+        if queryStr != "":
+            cols = []
+            for column in parse_one(queryStr).find_all(exp.Column):
+                if column.name not in cols:
+                    cols.append(column.name.lower())
+            
+            #st.write(cols)
+            sqlqueries.append(cols)
             queryStr = ""
 
         count += 1
+    st.write(sqlqueries)
 
     for appfield in appFieldsList:
         
@@ -378,7 +374,7 @@ def startScanning():
             continue
         
         if "|" in appfield: #these are fields string
-            approvedFieldStrs.append(appfield)
+            approvedFieldStrs.append(appfield.rstrip())
             continue
 
         if appfield.rstrip() != "":
@@ -412,19 +408,16 @@ def startScanning():
         for appTblName in approvedTblNames:
             if actTblName.strip() == appTblName.strip():
                 break
-        sqlq = sqlqueries[count]
-        sqlqLst = sqlq.split("|")
-
+        sqlq = sqlqueries[count] # this is a list now
         appFStr = approvedFieldStrs[count]
         appFStrLst = appFStr.split("|")
-
-        for qstr in sqlqLst:
-            found = False
-            for aFStr in appFStrLst:
-                if qstr.strip() == aFStr.strip():
+        found = False
+        for qstr in sqlq:
+            for aFS in appFStrLst:
+                if qstr == aFS.strip():
                     found = True
                     if qstr.strip() != "" and qstr.strip() in sensitive_fields:
-                        st.warning("Table: "+ actTblName+ " Field :"+aFStr+" is :red[sensitive]", icon="⚠️")
+                        st.warning("Table: "+ actTblName+ " Field :"+aFS+" is :red[sensitive]", icon="⚠️")
                     break
             if found == False:
                 st.text(qstr)
@@ -434,7 +427,7 @@ def startScanning():
                 elif qstr.strip() != "":
                     st.error("Table Name: "+actTblName+" Field: "+qstr+" is not matched, Pls check", icon="🚨")
                     errorFound += 1
-                
+                    
         count += 1
     
     st.text("End of Scanning, "+ str(errorFound)+ " Errors found")
@@ -449,5 +442,3 @@ def initLayout2():
 
 initLayout2()
 		
-
-
