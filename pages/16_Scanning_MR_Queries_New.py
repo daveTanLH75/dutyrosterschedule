@@ -350,7 +350,7 @@ def startScanning():
                     queryStr = queryStr +" "+ substr2
                     #st.text(queryStr)
         
-        st.text(queryStr)
+        #st.text(queryStr)
 
         if queryStr != "":
             cols = []
@@ -363,7 +363,6 @@ def startScanning():
             queryStr = ""
 
         count += 1
-    st.write(sqlqueries)
 
     for appfield in appFieldsList:
         
@@ -441,4 +440,3 @@ def initLayout2():
 
 
 initLayout2()
-		
