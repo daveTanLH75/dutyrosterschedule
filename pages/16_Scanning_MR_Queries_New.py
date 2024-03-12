@@ -7,6 +7,7 @@ from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
+import sqlglot
 from sqlglot import parse_one, exp
 
 
@@ -360,10 +361,19 @@ def startScanning():
 
         if queryStr != "":
             cols = []
-            for column in parse_one(queryStr).find_all(exp.Column):
-                if column.name not in cols:
-                    cols.append(column.name.lower())
-            
+            try:
+                colls = parse_one(queryStr, dialect="postgres").find_all(exp.Select)
+                collscnt = 0
+                for column in colls:
+                    if collscnt > 0: # this is to skip subqueries inside the main sql. if there are subqueries, colls will have more than 1 count
+                        continue
+                    for proj in column.expressions:
+                        if proj.alias_or_name.lower() not in cols:
+                            cols.append(proj.alias_or_name.lower())
+                    collscnt += 1
+            except sqlglot.errors.ParseError as e:
+                    st.error(e.errors, icon="🚨")
+   
             #st.write(cols)
             sqlqueries.append(cols)
             queryStr = ""
@@ -447,6 +457,3 @@ def initLayout2():
 
 
 initLayout2()
-		
-
-
