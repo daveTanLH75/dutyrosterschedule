@@ -321,21 +321,26 @@ def startScanning():
     queryStr = ""
     cnt = 0 # second level filtering for table and queries
     for substr in sqlstrs:
-        substrwords = substr.rstrip().split("\n")
+        substrwords = substr.strip().split("\n")
         if len(substrwords) == 0:
             count += 1
             continue
 
         for substr2 in substrwords:
-            #st.text(substr2.rstrip())
-            substr2 = substr2.rstrip()
+            substr2 = substr2.strip().lower()
             #st.text(substr2)
             if substr2 == "":
+                cnt += 1
                 continue
 
-            if "MOESYSPQ" in substr2: #parse jira name
+            if "moesyspq" in substr2: #parse jira name
                 mrjira_name = substr2
                 st.text("Start Scanning MR: "+ mrjira_name)
+                cnt += 1
+                continue
+
+            if  substr2.startswith("--"): #parse comments happen before qecho
+                cnt += 1
                 continue
 
             if "qecho" in substr2: # parse tbl Name
@@ -349,7 +354,8 @@ def startScanning():
                 else:
                     queryStr = queryStr +" "+ substr2
                     #st.text(queryStr)
-        
+            cnt += 1
+
         #st.text(queryStr)
 
         if queryStr != "":
