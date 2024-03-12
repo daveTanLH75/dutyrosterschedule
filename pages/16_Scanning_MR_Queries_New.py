@@ -379,7 +379,7 @@ def startScanning():
             continue
         
         if "|" in appfield: #these are fields string
-            approvedFieldStrs.append(appfield.rstrip())
+            approvedFieldStrs.append(appfield.strip())
             continue
 
         if appfield.rstrip() != "":
@@ -418,6 +418,7 @@ def startScanning():
         appFStrLst = appFStr.split("|")
         found = False
         for qstr in sqlq:
+            found = False
             for aFS in appFStrLst:
                 if qstr == aFS.strip():
                     found = True
@@ -446,3 +447,6 @@ def initLayout2():
 
 
 initLayout2()
+		
+
+
