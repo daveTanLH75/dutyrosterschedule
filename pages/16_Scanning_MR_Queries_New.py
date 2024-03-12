@@ -372,7 +372,7 @@ def startScanning():
                             cols.append(proj.alias_or_name.lower())
                     collscnt += 1
             except sqlglot.errors.ParseError as e:
-                    st.error(e.errors, icon="🚨")
+                    st.error(":red["+queryStr+"] has errors", icon="🚨")
    
             #st.write(cols)
             sqlqueries.append(cols)
