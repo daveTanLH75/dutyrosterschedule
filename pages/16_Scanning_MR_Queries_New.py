@@ -124,13 +124,7 @@ def startScanning():
         #st.text(appfield)
 
         if "row" in appfield.lower():
-            if fieldRowCnt == 3:
-                fieldRowCnt = 4
-            continue
-        
-        if 'set' in appfield.lower():
-            if fieldRowCnt == 4:
-                fieldRowCnt = 5
+            fieldRowCnt = 0
             continue
 
         if "+" in appfield:
@@ -146,6 +140,10 @@ def startScanning():
         
         tblNList = appfield.strip().split()
         if len(tblNList) == 1:
+            if 'set' in appfield.lower():
+                fieldRowCnt = 4
+                continue
+            
             if fieldRowCnt == 0:
                 approvedTblNames.append(tblNList[0])
                 fieldRowCnt = 1
