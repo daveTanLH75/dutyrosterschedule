@@ -123,10 +123,16 @@ def startScanning():
     for appfield in appFieldsList:
         #st.text(appfield)
 
-        if "row" in appfield:
-            fieldRowCnt = 0
+        if "row" in appfield.lower():
+            if fieldRowCnt == 3:
+                fieldRowCnt = 4
             continue
         
+        if 'set' in appfield.lower():
+            if fieldRowCnt == 4:
+                fieldRowCnt = 5
+            continue
+
         if "+" in appfield:
             if fieldRowCnt == 2:
                 fieldRowCnt = 3
