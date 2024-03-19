@@ -121,7 +121,7 @@ def startScanning():
     fieldRowCnt = 0
 
     for appfield in appFieldsList:
-        st.text(appfield)
+        #st.text(appfield)
 
         if "row" in appfield:
             fieldRowCnt = 0
