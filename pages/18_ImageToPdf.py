@@ -14,7 +14,7 @@ st.set_page_config(
 st.title("Image to Pdf Utility")
 
 def initLayout():
-    FILE_TYPES = ["png","img","jpg"]
+    FILE_TYPES = ["png","img","jpg","jpeg"]
     uploaded_file = st.file_uploader("Choose image file for conversion", type=FILE_TYPES,accept_multiple_files=False)
 
     if uploaded_file is not None:
