@@ -19,6 +19,7 @@ def initLayout():
 
     if uploaded_file is not None:
         img = Image.open(uploaded_file)
+        st.image(img)
         fName = Path(uploaded_file.name).stem
 
         pdf = ocrFunction(img,"pdf")
