@@ -2,3 +2,4 @@ supabase==1.0.4
 streamlit-calendar==0.4.0
 python-docx
 sqlglot
+pytesseract
