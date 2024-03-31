@@ -5,7 +5,7 @@ from pathlib import Path
 import random
 from datetime import datetime
 
-pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.3.4_1/bin/tesseract'
+#pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.3.4_1/bin/tesseract'
 
 st.set_page_config(
     page_title="Convert Image to Pdf",
