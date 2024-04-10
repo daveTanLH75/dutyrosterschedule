@@ -1,4 +1,4 @@
 tesseract-ocr
 tesseract-ocr-por
-tesseract-ocr-chi_sim
-tesseract-ocr-chi_tra
+tesseract-ocr-chi-sim
+tesseract-ocr-chi-tra
