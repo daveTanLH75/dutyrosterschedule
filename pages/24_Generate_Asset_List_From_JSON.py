@@ -132,6 +132,22 @@ def viewRDSData():
             entity['MonitoringInterval'] = d['MonitoringInterval']
             entity['CAIdentifier'] = certificateDetails['CAIdentifier']
             entity['ValidTill'] = certificateDetails['ValidTill']
+            for tagData in d['TagList']:
+                if tagData['Key'] == 'Backup_Group01':
+                      entity['Backup_Group01'] = tagData['Value']
+                if tagData['Key'] == 'Project-Code':
+                      entity['Project-Code'] = tagData['Value']
+                if tagData['Key'] == 'Tier':
+                    entity['Tier'] = tagData['Value']
+                if tagData['Key'] == 'Compartment':
+                    entity['Compartment'] = tagData['Value']
+                if tagData['Key'] == 'Zone':
+                    entity['Zone'] = tagData['Value']
+                if tagData['Key'] == 'Environment':
+                    entity['Environment'] = tagData['Value']
+                
+                
+
             #st.write(d)
             entities.append(entity)
 
