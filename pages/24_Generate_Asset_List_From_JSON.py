@@ -52,9 +52,9 @@ def viewCSVData():
 
                 entities.append(entity)
 
-    except json.JSONDecodeError as e:
+    except :
             st.error("Invalid json for SSM EC2 ", icon="🚨")
-            print ('Invalid json for SSM EC2',e)
+            #print ('Invalid json for SSM EC2',e)
             return
     
     ec2Str = st.session_state['ec2txt']
@@ -75,9 +75,9 @@ def viewCSVData():
                                     ec2dict['InstancePurpose'] = tagData['Value']
                                 elif tagData['Key'] == 'Name':
                                     ec2dict['InstanceName'] = tagData['Value']
-        except json.JSONDecodeError as e:
+        except :
             st.error("Invalid json for describe ec2 ", icon="🚨")
-            print ('Invalid json for describe ec2',e)
+            #print ('Invalid json for describe ec2',e)
             return
         
     with open('test_ec2.csv','w') as csv_file:
@@ -151,9 +151,8 @@ def viewRDSData():
             #st.write(d)
             entities.append(entity)
 
-    except json.JSONDecodeError as e:
+    except :
         st.error("Invalid JSON For RDS ", icon="🚨")
-        print ('Invalid json',e)
         return
             #st.write(entity)
     
@@ -180,7 +179,3 @@ st.button("Export for EC2 CSV", on_click=viewCSVData)
 
 st.text_area('Copy and paste in the AWS Describe RDS Instances output in JSON Format', key='rdstxt' , height=500)
 st.button("Export for RDS CSV", on_click=viewRDSData)
-
-
-
-
