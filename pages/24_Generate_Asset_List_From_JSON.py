@@ -52,7 +52,8 @@ def viewCSVData():
 
                 entities.append(entity)
 
-    except :
+    except Exception as e:
+            st.write(e)
             st.error("Invalid json for SSM EC2 ", icon="🚨")
             #print ('Invalid json for SSM EC2',e)
             return
@@ -75,7 +76,8 @@ def viewCSVData():
                                     ec2dict['InstancePurpose'] = tagData['Value']
                                 elif tagData['Key'] == 'Name':
                                     ec2dict['InstanceName'] = tagData['Value']
-        except :
+        except Exception as e:
+            st.write(e)
             st.error("Invalid json for describe ec2 ", icon="🚨")
             #print ('Invalid json for describe ec2',e)
             return
@@ -113,7 +115,11 @@ def viewRDSData():
             entity['Engine'] = d['Engine']
             entity['DBInstanceStatus'] = d['DBInstanceStatus']
             entity['MasterUsername'] = d['MasterUsername']
-            entity['DBName'] = d['DBName']
+            if d.get('DBName'):
+                entity['DBName'] = d['DBName']
+            else:
+                 entity['DBName'] = "NA"
+
             entity['AllocatedStorage'] = d['AllocatedStorage']
             entity['InstanceCreateTime'] = d['InstanceCreateTime']
             entity['PreferredBackupWindow'] = d['PreferredBackupWindow']
@@ -125,7 +131,11 @@ def viewRDSData():
             entity['PubliclyAccessible'] = d['PubliclyAccessible']
             entity['StorageType'] = d['StorageType']
             entity['PerformanceInsightsEnabled'] = d['PerformanceInsightsEnabled']
-            entity['PerformanceInsightsRetentionPeriod'] = d['PerformanceInsightsRetentionPeriod']
+            if d.get('PerformanceInsightsRetentionPeriod'):
+                entity['PerformanceInsightsRetentionPeriod'] = d['PerformanceInsightsRetentionPeriod']
+            else:
+                 entity['PerformanceInsightsRetentionPeriod'] = 'NA'
+
             entity['DeletionProtection'] = d['DeletionProtection']
             entity['KmsKeyId'] = d['KmsKeyId']
             entity['StorageEncrypted'] = d['StorageEncrypted']
@@ -133,25 +143,27 @@ def viewRDSData():
             entity['CAIdentifier'] = certificateDetails['CAIdentifier']
             entity['ValidTill'] = certificateDetails['ValidTill']
             for tagData in d['TagList']:
-                if tagData['Key'] == 'Backup_Group01':
-                      entity['Backup_Group01'] = tagData['Value']
-                if tagData['Key'] == 'Project-Code':
-                      entity['Project-Code'] = tagData['Value']
-                if tagData['Key'] == 'Tier':
-                    entity['Tier'] = tagData['Value']
-                if tagData['Key'] == 'Compartment':
-                    entity['Compartment'] = tagData['Value']
-                if tagData['Key'] == 'Zone':
-                    entity['Zone'] = tagData['Value']
-                if tagData['Key'] == 'Environment':
-                    entity['Environment'] = tagData['Value']
+                entity[tagData['Key']] = tagData['Value']
+                #if tagData['Key'] == 'Backup_Group01':
+                      #entity['Backup_Group01'] = tagData['Value']
+                #if tagData['Key'] == 'Project-Code':
+                      #entity['Project-Code'] = tagData['Value']
+               # if tagData['Key'] == 'Tier':
+                    #entity['Tier'] = tagData['Value']
+                #if tagData['Key'] == 'Compartment':
+                    #entity['Compartment'] = tagData['Value']
+                #if tagData['Key'] == 'Zone':
+                    #entity['Zone'] = tagData['Value']
+                #if tagData['Key'] == 'Environment':
+                    #entity['Environment'] = tagData['Value']
                 
                 
 
             #st.write(d)
             entities.append(entity)
 
-    except :
+    except  Exception as e:
+        st.write(e)
         st.error("Invalid JSON For RDS ", icon="🚨")
         return
             #st.write(entity)
@@ -179,3 +191,7 @@ st.button("Export for EC2 CSV", on_click=viewCSVData)
 
 st.text_area('Copy and paste in the AWS Describe RDS Instances output in JSON Format', key='rdstxt' , height=500)
 st.button("Export for RDS CSV", on_click=viewRDSData)
+
+
+
+
