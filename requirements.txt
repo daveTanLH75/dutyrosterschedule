@@ -4,3 +4,7 @@ python-docx
 sqlglot
 pytesseract
 streamlit_authenticator
+google-cloud-vision
+google-api-python-client
+google-auth-httplib2 
+google-auth-oauthlib
